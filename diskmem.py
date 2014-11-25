@@ -6,15 +6,21 @@ import re
 
 def main():
     m = meminfo()
-    freemem = (int(m['MemFree']) + int(m['Buffers']) + int(m['Cached'])) / 1024
-    swap = (int(m['SwapTotal']) - int(m['SwapFree'])) / 1024
-    freespace, fs_suffix = humanise_bytes(int(diskfree('/')))
-    capacity, cap_suffix = humanise_bytes(int(diskcap('/')))
-    print('Memory:')
-    print("\t" + str(freemem) + ' MB of free memory available.')
-    print("\t" + str(swap) + '/' + str(int(m['SwapTotal'])/1024) + ' MB of swap used.')
-    print('Disk:')
-    print("\t" + str(int(freespace)) + ' ' + fs_suffix + ' out of ' + str(int(capacity)) + ' ' + cap_suffix + ' disk space available.')
+    mem_total = int(m['MemTotal']) / 1024
+    mem_free = int(m['MemFree']) + int(m['Buffers']) + int(m['Cached'])
+    mem_usage = (int(m['MemTotal']) - mem_free) / 1024
+    swap_total = int(m['SwapTotal']) / 1024
+    swap_usage = (int(m['SwapTotal']) - int(m['SwapFree'])) / 1024
+    disk_total_bytes = int(diskcap('/'))
+    disk_free = int(diskfree('/'))
+    disk_total, dt_suffix = humanise_bytes(disk_total_bytes)
+    disk_usage, du_suffix = humanise_bytes(disk_total_bytes - disk_free)
+    print('Memory usage')
+    print("\t{0}/{1} MB of used memory.".format(mem_usage, mem_total))
+    print('Swap usage')
+    print("\t{0}/{1} MB of used swap.".format(swap_usage, swap_total))
+    print('Disk usage:')
+    print("\t{0:.2f} {1}/{2:.2f} {3} of used disk space.".format(disk_usage, du_suffix, disk_total, dt_suffix))
 
 def diskfree(path):
     """
